@@ -52,7 +52,7 @@ signs:
       - "${artifact}"
 
 release:
-  draft: true
+  draft: false
   prerelease: auto
   extra_files:
     - glob: 'terraform-registry-manifest.json'
