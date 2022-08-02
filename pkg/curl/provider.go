@@ -17,8 +17,10 @@ func NewProvider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("CURL_OAUTH2_TOKEN", nil),
 			},
 		},
-		ResourcesMap:         map[string]*schema.Resource{},
-		DataSourcesMap:       map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{},
+		DataSourcesMap: map[string]*schema.Resource{
+			"curl_request": dataSource(),
+		},
 		ConfigureContextFunc: providerConfigure,
 	}
 }
