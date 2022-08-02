@@ -1,0 +1,22 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: ""
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+## Example Usage
+
+### Provider
+
+{{ tffile "examples/trigger-github-workflow/providers.tf" }}
+
+### curl_request
+
+{{ tffile "examples/trigger-github-workflow/main.tf" }}
+
+{{ .SchemaMarkdown | trimspace }}

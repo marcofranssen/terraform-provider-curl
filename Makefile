@@ -28,8 +28,8 @@ BINARIES=$(BUILDS:%=bin/$(COMMAND)_%_$(GIT_VERSION))
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
-bin/terraform-provider-curl_%_$(GIT_VERSION): cmd/terraform-provider-curl
-	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build $(GO_BUILD_FLAGS) -o $@ ./$<
+bin/terraform-provider-curl_%_$(GIT_VERSION): .
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build $(GO_BUILD_FLAGS) -o $@ $<
 
 $(BINARIES): GOOS = $(word 1,$(subst _, ,$*))
 $(BINARIES): GOARCH = $(word 2,$(subst _, ,$*))
@@ -54,3 +54,10 @@ clean-install: ## Removes the installed binary
 clean-plugin-cache: ## Removes the installed binary
 	@echo Cleaning $(subst plugins,plugin-cache,$(INSTALL_DIR))…
 	@rm -r $(subst plugins,plugin-cache,$(INSTALL_DIR)) 2>/dev/null || true
+
+$(GO_PATH)/bin/tfplugindocs:
+	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+
+.PHONY: docs
+docs: $(GO_PATH)/bin/tfplugindocs ## Generates the provider documentation
+	$(GO_PATH)/bin/tfplugindocs
