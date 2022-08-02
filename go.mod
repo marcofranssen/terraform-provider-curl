@@ -2,7 +2,10 @@ module github.com/marcofranssen/terraform-provider-curl
 
 go 1.18
 
-require github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
+require (
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+)
 
 require (
 	github.com/agext/levenshtein v1.2.2 // indirect

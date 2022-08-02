@@ -24,9 +24,18 @@ func NewProvider() *schema.Provider {
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	_ = d.Get("token").(string)
+	token := d.Get("token").(string)
 
 	var diags diag.Diagnostics
+	opts := HttpClientOptions{token: token}
 
-	return nil, diags
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	c, err := NewClient(ctx, opts)
+	if err != nil {
+		return nil, diag.FromErr(err)
+	}
+
+	return c, diags
 }
