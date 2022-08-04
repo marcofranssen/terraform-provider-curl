@@ -9,9 +9,7 @@ GO_BUILD_FLAGS := -trimpath
 COMMAND       := terraform-provider-$(NAME)
 
 OS_ARCH=darwin_amd64
-# INSTALL_DIR=~/.terraform.d/plugin-cache/$(HOSTNAME)/$(NS)/$(NAME)/$(GIT_VERSION)/$(OS_ARCH)
-# INSTALL_DIR=~/.terraform.d/plugin-cache/$(HOSTNAME)/$(NS)/$(NAME)/0.1.0/$(OS_ARCH)
-INSTALL_DIR=~/.terraform.d/plugins/$(HOSTNAME)/$(NS)/$(NAME)/0.1.0/$(OS_ARCH)
+INSTALL_DIR=~/.terraform.d/plugins/$(HOSTNAME)/$(NS)/$(NAME)/$(subst v,,$(GIT_VERSION))/$(OS_ARCH)
 
 BUILDS=$(OS_ARCH) \
   darwin_arm64  \
@@ -23,6 +21,9 @@ BUILDS=$(OS_ARCH) \
   windows_amd64
 
 BINARIES=$(BUILDS:%=bin/$(COMMAND)_%_$(GIT_VERSION))
+
+print-install:
+	echo $(INSTALL_DIR)
 
 .PHONY: help
 help:
