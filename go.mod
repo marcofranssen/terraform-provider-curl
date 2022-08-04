@@ -3,6 +3,7 @@ module github.com/marcofranssen/terraform-provider-curl
 go 1.18
 
 require (
+	github.com/hashicorp/terraform-plugin-log v0.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.20.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 )
@@ -23,7 +24,6 @@ require (
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-plugin-go v0.12.0 // indirect
-	github.com/hashicorp/terraform-plugin-log v0.7.0 // indirect
 	github.com/hashicorp/terraform-registry-address v0.0.0-20220623143253-7d51757b572c // indirect
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 // indirect
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d // indirect

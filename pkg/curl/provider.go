@@ -3,6 +3,7 @@ package curl
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -30,6 +31,10 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 
 	var diags diag.Diagnostics
 	opts := HttpClientOptions{token: token}
+
+	if opts.token != "" {
+		tflog.MaskAllFieldValuesStrings(ctx, token)
+	}
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
