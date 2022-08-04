@@ -1,6 +1,6 @@
 # Trigger github workflow Example
 
-This example shows how to dispatch a GitHub workflow. This could be in particular usefull when chaining various terraform environments living in different repositories to apply them in a particular order.
+This example shows how to dispatch a GitHub workflow. This could be in particular useful when chaining various terraform environments living in different repositories to apply them in a particular order.
 
 ## Run the example
 
