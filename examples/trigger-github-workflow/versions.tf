@@ -7,7 +7,7 @@ terraform {
   required_providers {
     curl = {
       source  = "marcofranssen/curl"
-      version = "~> 0.1.0"
+      version = "~> 0.2.0"
     }
     random = {
       source  = "hashicorp/random"
