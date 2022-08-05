@@ -62,3 +62,12 @@ $(GO_PATH)/bin/tfplugindocs:
 .PHONY: docs
 docs: $(GO_PATH)/bin/tfplugindocs ## Generates the provider documentation
 	$(GO_PATH)/bin/tfplugindocs
+
+$(GO_PATH)/bin/terraform-docs:
+	go install github.com/terraform-docs/terraform-docs@latest
+
+.PHONY: example-docs
+example-docs: $(GO_PATH)/bin/terraform-docs ## Generates terraform documentation for examples
+	@$< markdown examples/default --output-file README.md
+	@$< markdown examples/ifconfig --output-file README.md
+	@$< markdown examples/trigger-github-workflow --output-file README.md

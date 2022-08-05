@@ -19,14 +19,14 @@ terraform apply # invokes the workflow
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.9 |
-| <a name="requirement_curl"></a> [curl](#requirement\_curl) | ~> 0.2.0 |
+| <a name="requirement_curl"></a> [curl](#requirement\_curl) | ~> 0.2.1 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | 3.3.2 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_curl"></a> [curl](#provider\_curl) | 0.1.0 |
+| <a name="provider_curl"></a> [curl](#provider\_curl) | 0.2.1 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
