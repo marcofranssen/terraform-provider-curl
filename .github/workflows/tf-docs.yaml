@@ -53,3 +53,4 @@ jobs:
           branch: ${{ steps.pr-meta.outputs.branch-name }}
           commit-message: "terraform-docs: Update ${{ matrix.module }} example documentation"
           body: Update ${{ matrix.module }} documentation, see [README.md](https://github.com/philips-internal/fiesta-terraform-examples/blob/${{ steps.pr-meta.outputs.branch-name }}/examples/${{ matrix.module }}/README.md) for the result.
+          labels: documentation
