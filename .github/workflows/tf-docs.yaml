@@ -1,0 +1,55 @@
+name: Terraform docs
+on:
+  push:
+    branches:
+      - main
+      - update-docs
+      - dependabot/terraform/**
+
+concurrency:
+  group: tf-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  example-docs:
+    name: Example Docs
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - ifconfig
+          - trigger-github-workflow
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.0.2
+
+      - name: Update module docs
+        uses: terraform-docs/gh-actions@v1.0.0
+        with:
+          working-dir: examples/${{ matrix.module }}
+          output-file: README.md
+          output-method: inject
+          git-push: "false"
+
+      - name: Compute branch name
+        id: pr-meta
+        run: |
+          pr_title="${{ github.ref_name }}"
+          pr_title=${pr_title//dependabot\/terraform\/examples\/${{ matrix.module }}/}
+          echo "::set-output name=pr-title::Update ${{ matrix.module }} docs ${pr_title}"
+          echo "::set-output name=branch-name::update-${{ matrix.module }}-example-docs-${pr_title}"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4.0.4
+        with:
+          title: ${{ steps.pr-meta.outputs.pr-title }}
+          branch: ${{ steps.pr-meta.outputs.branch-name }}
+          commit-message: "terraform-docs: Update ${{ matrix.module }} example documentation"
+          body: Update ${{ matrix.module }} documentation, see [README.md](https://github.com/philips-internal/fiesta-terraform-examples/blob/${{ steps.pr-meta.outputs.branch-name }}/examples/${{ matrix.module }}/README.md) for the result.
