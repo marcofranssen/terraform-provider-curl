@@ -11,17 +11,6 @@ description: |-
 
 ## Example Usage
 
-### Provider
-
-```terraform
-provider "curl" {
-}
-
-provider "random" {
-  # Configuration options
-}
-```
-
 ### curl_request
 
 ```terraform
@@ -40,6 +29,13 @@ data "curl_request" "ifconfig" {
   depends_on = [
     random_id.test
   ]
+}
+
+output "ifconfig_response" {
+  value = {
+    status_code = data.curl_request.ifconfig.response_status_code
+    body        = jsondecode(data.curl_request.ifconfig.response_body)
+  }
 }
 ```
 

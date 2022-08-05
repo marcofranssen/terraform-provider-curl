@@ -6,9 +6,5 @@ terraform {
       source  = "marcofranssen/curl"
       version = "~> 0.2.1"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.3.2"
-    }
   }
 }

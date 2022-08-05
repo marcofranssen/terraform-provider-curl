@@ -4,6 +4,18 @@ description: |-
   The curl provider is used to make a curl request to any http endpoint.
 ---
 
+## Example Usage
+
+### Provider
+
+#### Without authentication
+
+{{ tffile "examples/default/providers.tf" }}
+
+#### Using Bearer token authentication
+
+{{ tffile "examples/trigger-github-workflow/providers.tf" }}
+
 # Curl Provider
 
 The "curl" provider allows to make a curl request to any http endpoint.

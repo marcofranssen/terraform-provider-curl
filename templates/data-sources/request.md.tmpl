@@ -11,12 +11,16 @@ description: |-
 
 ## Example Usage
 
-### Provider
+### curl_request google
 
-{{ tffile "examples/ifconfig/providers.tf" }}
+{{ tffile "examples/google/main.tf" }}
 
-### curl_request
+### curl_request ifconfig
 
 {{ tffile "examples/ifconfig/main.tf" }}
+
+### curl_request github workflow dispatch
+
+{{ tffile "examples/trigger-github-workflow/main.tf" }}
 
 {{ .SchemaMarkdown | trimspace }}

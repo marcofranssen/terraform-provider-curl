@@ -4,6 +4,29 @@ description: |-
   The curl provider is used to make a curl request to any http endpoint.
 ---
 
+## Example Usage
+
+### Provider
+
+#### Without authentication
+
+```terraform
+provider "curl" {
+}
+```
+
+#### Using Bearer token authentication
+
+```terraform
+provider "curl" {
+  token = var.github_token
+}
+
+provider "random" {
+  # Configuration options
+}
+```
+
 # Curl Provider
 
 The "curl" provider allows to make a curl request to any http endpoint.
