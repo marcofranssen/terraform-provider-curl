@@ -30,11 +30,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3.0.2
 
-      - name: Debug
-        run: |
-          ls -lha .git
-          ls -lha .git/objects
-
       - name: Update module docs
         uses: terraform-docs/gh-actions@v1.0.0
         with:
@@ -43,10 +38,8 @@ jobs:
           output-method: inject
           git-push: "false"
 
-      - name: Debug
-        run: |
-          ls -lha .git
-          ls -lha .git/objects
+      - name: Fix .git owner
+        run: sudo chown runner:docker -R .git
 
       - name: Compute branch name
         id: pr-meta
@@ -65,9 +58,3 @@ jobs:
           commit-message: "terraform-docs: Update ${{ matrix.module }} example documentation"
           body: Update ${{ matrix.module }} documentation, see [README.md](https://github.com/${{ github.repository }}/blob/${{ steps.pr-meta.outputs.branch-name }}/examples/${{ matrix.module }}/README.md) for the result.
           labels: documentation
-
-      - name: Debug
-        if: ${{ always() }}
-        run: |
-          ls -lha .git
-          ls -lha .git/objects
