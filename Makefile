@@ -8,7 +8,7 @@ GIT_VERSION ?= $(shell git describe --tags --always --dirty)
 GO_BUILD_FLAGS := -trimpath
 COMMAND       := terraform-provider-$(NAME)
 
-OS_ARCH=darwin_amd64
+OS_ARCH=windows_amd64
 INSTALL_DIR=~/.terraform.d/plugins/$(HOSTNAME)/$(NS)/$(NAME)/$(subst v,,$(GIT_VERSION))/$(OS_ARCH)
 
 BUILDS=$(OS_ARCH) \

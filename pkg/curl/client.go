@@ -2,6 +2,7 @@ package curl
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 
 	"golang.org/x/oauth2"
@@ -11,7 +12,8 @@ import (
 )
 
 type HttpClientOptions struct {
-	token string
+	token      string
+	disabletls bool
 }
 
 type HttpClient struct {
@@ -21,6 +23,12 @@ type HttpClient struct {
 func NewClient(ctx context.Context, opts HttpClientOptions) (*HttpClient, error) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: opts.token})
 	c := oauth2.NewClient(ctx, ts)
+
+	if opts.disabletls {
+		c.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
 
 	c.Transport = transport.TeeRoundTripper{
 		RoundTripper: c.Transport,

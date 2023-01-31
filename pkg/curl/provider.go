@@ -17,6 +17,11 @@ func NewProvider() *schema.Provider {
 				Sensitive:   true,
 				DefaultFunc: schema.EnvDefaultFunc("CURL_OAUTH2_TOKEN", nil),
 			},
+			"disabletls": {
+				Type:      schema.TypeBool,
+				Optional:  true,
+				Sensitive: false,
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -28,9 +33,13 @@ func NewProvider() *schema.Provider {
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	token := d.Get("token").(string)
+	disabletls := d.Get("disabletls").(bool)
 
 	var diags diag.Diagnostics
-	opts := HttpClientOptions{token: token}
+	opts := HttpClientOptions{
+		token:      token,
+		disabletls: disabletls,
+	}
 
 	if opts.token != "" {
 		tflog.MaskAllFieldValuesStrings(ctx, token)
