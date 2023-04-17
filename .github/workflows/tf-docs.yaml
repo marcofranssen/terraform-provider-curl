@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: Update module docs
         uses: terraform-docs/gh-actions@v1.0.0
