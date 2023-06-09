@@ -9,7 +9,6 @@ GO_BUILD_FLAGS := -trimpath
 COMMAND       := terraform-provider-$(NAME)
 
 OS_ARCH=darwin_amd64
-INSTALL_DIR=~/.terraform.d/plugins/$(HOSTNAME)/$(NS)/$(NAME)/$(subst v,,$(GIT_VERSION))/$(OS_ARCH)
 
 BUILDS=$(OS_ARCH) \
   darwin_arm64  \
@@ -22,46 +21,18 @@ BUILDS=$(OS_ARCH) \
 
 BINARIES=$(BUILDS:%=bin/$(COMMAND)_%_$(GIT_VERSION))
 
-print-install:
-	echo $(INSTALL_DIR)
-
 .PHONY: help
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+help: ## Display this help.
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-bin/terraform-provider-curl_%_$(GIT_VERSION): .
-	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build $(GO_BUILD_FLAGS) -o $@ $<
-
-$(BINARIES): GOOS = $(word 1,$(subst _, ,$*))
-$(BINARIES): GOARCH = $(word 2,$(subst _, ,$*))
-build: $(BINARIES) ## Build the binary
-
-clean-bin: ## Remove compiled binaries
-	rm -r bin
-
-$(INSTALL_DIR):
-	@mkdir -p $@
-
-$(INSTALL_DIR)/$(COMMAND): $(INSTALL_DIR)
-	@echo Plugin installed at $@
-	@cp bin/terraform-provider-curl_$(OS_ARCH)_$(GIT_VERSION) $@
-
-install: build clean-install clean-plugin-cache $(INSTALL_DIR)/$(COMMAND) ## Install the plugin
-
-clean-install: ## Removes the installed binary
-	@echo Cleaning $(INSTALL_DIR)…
-	@rm -r $(INSTALL_DIR) 2>/dev/null || true
-
-clean-plugin-cache: ## Removes the installed binary
-	@echo Cleaning $(subst plugins,plugin-cache,$(INSTALL_DIR))…
-	@rm -r $(subst plugins,plugin-cache,$(INSTALL_DIR)) 2>/dev/null || true
+##@ Documentation:
 
 $(GO_PATH)/bin/tfplugindocs:
 	go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
 
-.PHONY: docs
-docs: $(GO_PATH)/bin/tfplugindocs ## Generates the provider documentation
-	$(GO_PATH)/bin/tfplugindocs
+.PHONY: provider-docs
+provider-docs: $(GO_PATH)/bin/tfplugindocs ## Generate provider documentation
+	@go generate ./...
 
 $(GO_PATH)/bin/terraform-docs:
 	go install github.com/terraform-docs/terraform-docs@latest
@@ -71,3 +42,38 @@ example-docs: $(GO_PATH)/bin/terraform-docs ## Generates terraform documentation
 	@$< markdown examples/default --output-file README.md
 	@$< markdown examples/ifconfig --output-file README.md
 	@$< markdown examples/trigger-github-workflow --output-file README.md
+
+##@ Testing:
+
+.PHONY: test
+test: ## Run unit tests
+	go test -v -count=1 ./...
+
+.PHONY: acc-test
+acc-test: ## Run acceptance tests
+	TF_ACC=1 go test -v -count=1 ./pkg/curl
+
+##@ Install:
+
+GOBIN := $(shell go env GOBIN)
+ifeq ($(strip $(GOBIN)),)
+    # If GOBIN is empty, set the variable GOBIN to the $GOPATH/bin bin folder
+    GOBIN := $(shell go env GOPATH)/bin
+endif
+
+.PHONY: install
+install: ## Install the provider to $GOBIN
+	@echo Installing provider to $(GOBIN)…
+	@go install .
+
+bin/terraform-provider-curl_%_$(GIT_VERSION): .
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build $(GO_BUILD_FLAGS) -o $@ $<
+
+##@ Build:
+
+$(BINARIES): GOOS = $(word 1,$(subst _, ,$*))
+$(BINARIES): GOARCH = $(word 2,$(subst _, ,$*))
+build: $(BINARIES) ## Build the binary
+
+clean-bin: ## Remove compiled binaries
+	rm -r bin
