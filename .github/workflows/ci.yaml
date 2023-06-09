@@ -1,0 +1,131 @@
+name: ci
+on:
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile-provider:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Setup Go
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+          cache: true
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Compile
+        run: go build -trimpath .
+
+  check-docs:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Setup Go
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+          cache: true
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Check docs updated
+        run: |
+          make provider-docs
+          git diff --exit-code
+
+      - name: Print failure message
+        if: failure()
+        run: |
+          cat <<EOF >>"$GITHUB_STEP_SUMMARY"
+          ## Documentation
+
+          The documentation is outdated, please ensure to run following command to update the documentation:
+
+          \`\`\`shell
+          make provider-docs
+          \`\`\`
+
+          Now commit the documentation and push the changes.
+          EOF
+
+  test-provider:
+    runs-on: ubuntu-22.04
+
+    needs: [compile-provider]
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Setup Go
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+          cache: true
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Test
+        run: make test
+
+  acceptancetest-provider:
+    runs-on: ${{ matrix.os }}
+
+    needs: [compile-provider]
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          # Kind action seems not to implement these os accordingly
+          # - windows-2022
+          # - macos-12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Setup Go
+        uses: actions/setup-go@v4.0.1
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+          cache: true
+
+      - name: Download modules
+        run: go mod download
+
+      - name: Acceptance test
+        run: make acc-test
