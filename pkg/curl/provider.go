@@ -2,47 +2,84 @@ package curl
 
 import (
 	"context"
+	"os"
 
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
-func NewProvider() *schema.Provider {
-	return &schema.Provider{
-		Schema: map[string]*schema.Schema{
-			"token": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("CURL_OAUTH2_TOKEN", nil),
+var (
+	_ provider.Provider = &curlProvider{}
+)
+
+type curlProvider struct{}
+
+func New() provider.Provider {
+	return &curlProvider{}
+}
+
+// Metadata returns the provider type name.
+func (p *curlProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "curl"
+}
+
+// Schema defines the provider-level schema for configuration data.
+func (p *curlProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Description: "Make curl requests via Terraform.",
+		Attributes: map[string]schema.Attribute{
+			"token": schema.StringAttribute{
+				Optional:  true,
+				Sensitive: true,
 			},
 		},
-		ResourcesMap: map[string]*schema.Resource{},
-		DataSourcesMap: map[string]*schema.Resource{
-			"curl_request": dataSource(),
-		},
-		ConfigureContextFunc: providerConfigure,
 	}
 }
 
-func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	token := d.Get("token").(string)
-
-	var diags diag.Diagnostics
-	opts := HttpClientOptions{token: token}
-
-	if opts.token != "" {
-		tflog.MaskAllFieldValuesStrings(ctx, token)
+// Configure prepares a curl client for data sources and resources.
+func (p *curlProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var config providerConfiguration
+	diags := req.Config.Get(ctx, &config)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
+
+	token := os.Getenv("CURL_OAUTH2_TOKEN")
+	if !config.Token.IsNull() {
+		token = config.Token.ValueString()
+	}
+
+	opts := HttpClientOptions{token: token}
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	c, err := NewClient(ctx, opts)
+	client, err := NewClient(ctx, opts)
 	if err != nil {
-		return nil, diag.FromErr(err)
+		resp.Diagnostics.AddError(
+			"Unable to Create http Client",
+			"An unexpected error occurred when creating the http client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"HTTP Client Error: "+err.Error(),
+		)
+		return
 	}
 
-	return c, diags
+	resp.DataSourceData = client
+	resp.ResourceData = client
+}
+
+// DataSources defines the data sources implemented in the provider.
+func (p *curlProvider) DataSources(context.Context) []func() datasource.DataSource {
+	return []func() datasource.DataSource{
+		NewCurlRequestDataSource,
+	}
+}
+
+// Resources defines the resources implemented in the provider.
+func (p *curlProvider) Resources(context.Context) []func() resource.Resource {
+	return nil
 }
