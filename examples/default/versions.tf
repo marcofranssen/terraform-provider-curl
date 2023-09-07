@@ -4,7 +4,7 @@ terraform {
   required_providers {
     curl = {
       source  = "marcofranssen/curl"
-      version = "~> 0.2.1"
+      version = "~> 0.3.0"
     }
   }
 }

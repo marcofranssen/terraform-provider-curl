@@ -13,7 +13,7 @@ terraform apply
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.9 |
-| <a name="requirement_curl"></a> [curl](#requirement\_curl) | ~> 0.2.1 |
+| <a name="requirement_curl"></a> [curl](#requirement\_curl) | ~> 0.3.0 |
 
 ## Providers
 
