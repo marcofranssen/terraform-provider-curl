@@ -26,7 +26,7 @@ terraform apply # Get your public ip information from ifconfig.co
 
 | Name | Version |
 |------|---------|
-| <a name="provider_curl"></a> [curl](#provider\_curl) | 0.2.1 |
+| <a name="provider_curl"></a> [curl](#provider\_curl) | ~> 0.4.1 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
