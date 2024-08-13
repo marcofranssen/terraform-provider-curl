@@ -68,9 +68,9 @@ func TestCurlRequestHeadersDataSource(t *testing.T) {
 data "curl_request" "ipify" {
 	uri         = "https://api.ipify.org?format=json"
 	http_method = "GET"
-	headers = jsonencode({
-		Content-Type = "application/json"
-	})
+	headers = {
+	  Content-Type = "application/json"
+	}
 }
 `,
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -90,7 +90,7 @@ data "curl_request" "ipify" {
 						return nil
 					}),
 					resource.TestCheckResourceAttr(testIpifyResourceName, "response_status_code", "200"),
-					resource.TestCheckResourceAttr(testIpifyResourceName, "headers", "{\"Content-Type\":\"application/json\"}"),
+					resource.TestCheckResourceAttr(testIpifyResourceName, "headers.Content-Type", "application/json"),
 				),
 			},
 		},
