@@ -57,6 +57,7 @@ type requestDataSourceModel struct {
 	URI                types.String `tfsdk:"uri"`
 	HTTPMethod         types.String `tfsdk:"http_method"`
 	Data               types.String `tfsdk:"data"`
+	Headers            types.Map    `tfsdk:"headers"`
 	ResponseStatusCode types.Int64  `tfsdk:"response_status_code"`
 	ResponseBody       types.String `tfsdk:"response_body"`
 }
@@ -80,6 +81,11 @@ func (*curlRequestDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			"data": schema.StringAttribute{
 				Description: "The data sent in the request.",
 				Optional:    true,
+			},
+			"headers": schema.MapAttribute{
+				Description: "Headers sent in the request.",
+				Optional:    true,
+				ElementType: types.StringType,
 			},
 			"response_status_code": schema.Int64Attribute{
 				Description: "HTTP Statuscode returned from the HTTP request.",
@@ -119,6 +125,17 @@ func (d *curlRequestDataSource) Read(ctx context.Context, req datasource.ReadReq
 			err.Error(),
 		)
 		return
+	}
+
+	headers := make(map[string]types.String, len(state.Headers.Elements()))
+	diags = state.Headers.ElementsAs(ctx, &headers, false)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	for header, value := range headers {
+		httpRequest.Header.Set(header, value.ValueString())
 	}
 
 	r, err := d.client.Do(httpRequest)

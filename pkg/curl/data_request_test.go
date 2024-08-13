@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	testResourceName = "data.curl_request.google"
+	testResourceName      = "data.curl_request.google"
+	testIpifyResourceName = "data.curl_request.ipify"
 )
 
 func TestCurlRequestDataSource(t *testing.T) {
@@ -51,6 +52,45 @@ data "curl_request" "google" {
 
 						return nil
 					}),
+				),
+			},
+		},
+	})
+}
+
+func TestCurlRequestHeadersDataSource(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Read testing
+			{
+				Config: GetProviderConfig() + `
+data "curl_request" "ipify" {
+	uri         = "https://api.ipify.org?format=json"
+	http_method = "GET"
+	headers = {
+	  Content-Type = "application/json"
+	}
+}
+`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(testIpifyResourceName, "uri", "https://api.ipify.org?format=json"),
+					resource.TestCheckResourceAttr(testIpifyResourceName, "http_method", "GET"),
+					resource.TestCheckResourceAttrWith(testIpifyResourceName, "id", func(value string) error {
+						id, err := strconv.ParseInt(value, 10, 64)
+						if err != nil {
+							return err
+						}
+
+						diff := time.Since(time.Unix(id, 0)).Seconds()
+						if diff > 1.5 {
+							return fmt.Errorf("expected ID to be within 1.5 seconds of current unix timestamp, was %f seconds difference", diff)
+						}
+
+						return nil
+					}),
+					resource.TestCheckResourceAttr(testIpifyResourceName, "response_status_code", "200"),
+					resource.TestCheckResourceAttr(testIpifyResourceName, "headers.Content-Type", "application/json"),
 				),
 			},
 		},

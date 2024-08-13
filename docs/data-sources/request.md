@@ -23,6 +23,7 @@ Provision a Dex oauth2 client.
 ### Optional
 
 - `data` (String) The data sent in the request.
+- `headers` (Map of String) Headers sent in the request.
 
 ### Read-Only
 
