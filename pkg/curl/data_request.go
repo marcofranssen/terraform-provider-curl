@@ -3,6 +3,7 @@ package curl
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,6 +58,7 @@ type requestDataSourceModel struct {
 	URI                types.String `tfsdk:"uri"`
 	HTTPMethod         types.String `tfsdk:"http_method"`
 	Data               types.String `tfsdk:"data"`
+	Headers            types.String `tfsdk:"headers"`
 	ResponseStatusCode types.Int64  `tfsdk:"response_status_code"`
 	ResponseBody       types.String `tfsdk:"response_body"`
 }
@@ -79,6 +81,10 @@ func (*curlRequestDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			},
 			"data": schema.StringAttribute{
 				Description: "The data sent in the request.",
+				Optional:    true,
+			},
+			"headers": schema.StringAttribute{
+				Description: "Headers sent in the request.",
 				Optional:    true,
 			},
 			"response_status_code": schema.Int64Attribute{
@@ -121,6 +127,23 @@ func (d *curlRequestDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
+	headers := state.Headers.ValueString()
+
+	if strings.Trim(headers, " \t\r\n") != "" {
+		parsedHeaders, err := parseJSON(headers)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to set http headers",
+				err.Error(),
+			)
+			return
+		}
+
+		for header, value := range parsedHeaders {
+			httpRequest.Header.Set(header, value.(string))
+		}
+	}
+
 	r, err := d.client.Do(httpRequest)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -158,4 +181,13 @@ func (d *curlRequestDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+}
+
+func parseJSON(input string) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(input), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
