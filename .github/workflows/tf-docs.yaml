@@ -51,7 +51,7 @@ jobs:
           echo "::set-output name=branch-name::${{ matrix.module }}"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7.0.5
+        uses: peter-evans/create-pull-request@v7.0.6
         with:
           title: ${{ steps.pr-meta.outputs.pr-title }}
           branch: ${{ steps.pr-meta.outputs.branch-name }}
