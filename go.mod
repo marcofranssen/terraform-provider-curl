@@ -1,6 +1,6 @@
 module github.com/marcofranssen/terraform-provider-curl
 
-go 1.23.0
+go 1.23.6
 
 toolchain go1.24.0
 
