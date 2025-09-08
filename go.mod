@@ -1,12 +1,12 @@
 module github.com/marcofranssen/terraform-provider-curl
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
-	golang.org/x/oauth2 v0.30.0
+	golang.org/x/oauth2 v0.31.0
 )
 
 require (
