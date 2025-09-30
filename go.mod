@@ -1,6 +1,6 @@
 module github.com/marcofranssen/terraform-provider-curl
 
-go 1.24.0
+go 1.25.1
 
 require (
 	github.com/hashicorp/terraform-plugin-framework v1.16.1
